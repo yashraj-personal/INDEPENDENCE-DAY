@@ -1,1 +1,818 @@
-.
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tricolor Royal Greeting & Scroll | Made by Yash</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rozha+One&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saffron: '#FF9933',
+                        indiaGreen: '#138808',
+                        navyChakra: '#000080',
+                        parchmentBg: '#FBF5E9',
+                        parchmentDark: '#EFE5C5',
+                        parchmentBorder: '#C5A059'
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        rozha: ['"Rozha One"', 'serif'],
+                        inter: ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'spin-slow': 'spin 20s linear infinite'
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': {
+                                boxShadow: '0 0 15px rgba(255, 153, 51, 0.6), 0 0 30px rgba(19, 136, 8, 0.4)'
+                            },
+                            '50%': {
+                                boxShadow: '0 0 25px rgba(255, 153, 51, 0.9), 0 0 45px rgba(0, 0, 128, 0.7)'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': {
+                                transform: 'translateY(0)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-10px)'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .parchment-texture {
+            background-color: #FBF5E9;
+            background-image:
+                radial-gradient(#e6d5b8 0.75px, transparent 0.75px),
+                radial-gradient(#e6d5b8 0.75px, #FBF5E9 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+
+        .glass-tricolor {
+            background: rgba(10, 15, 29, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image:
+                linear-gradient(rgba(10, 15, 29, 0.75), rgba(10, 15, 29, 0.75)),
+                linear-gradient(135deg, #FF9933, #ffffff, #138808);
+        }
+
+        .wax-seal {
+            background: radial-gradient(circle at 30% 30%, #ff4d4d, #b30000);
+            box-shadow:
+                0 4px 15px rgba(179, 0, 0, 0.6),
+                inset 0 2px 5px rgba(255,255,255,0.4);
+        }
+
+        #envelopeFlap {
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            background: linear-gradient(
+                145deg,
+                #f1e5d1 0%,
+                #d3bea0 70%,
+                #bba27d 100%
+            ) !important;
+            box-shadow: 0 9px 14px rgba(69, 43, 16, 0.22);
+        }
+
+        #envelopeFlap::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 12%);
+            background: rgba(255,255,255,.19);
+            pointer-events: none;
+        }
+
+        #envelopeScreen {
+            perspective: 1000px;
+        }
+
+        #envelopeScreen > .relative {
+            transform-style: preserve-3d;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0f1d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FF9933;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0A0F1D] text-gray-100 font-inter min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <audio id="anthemAudio" loop preload="auto">
+        <source
+            src="https://upload.wikimedia.org/wikipedia/commons/transcoded/9/94/Jana_Gana_Mana_instrumental.ogg/Jana_Gana_Mana_instrumental.ogg.mp3"
+            type="audio/mpeg"
+        >
+        <source
+            src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Jana_Gana_Mana_instrumental_%28US_Navy_Band%29.ogg"
+            type="audio/ogg"
+        >
+        Your browser does not support the audio element.
+    </audio>
+
+    <div
+        class="fixed top-4 right-4 z-50 flex items-center gap-3 bg-gray-900/90 border border-amber-500/50 px-4 py-2 rounded-full shadow-2xl backdrop-blur-md"
+        data-testid="audio-widget"
+    >
+        <div class="flex items-center gap-2">
+            <span class="relative flex h-3 w-3">
+                <span
+                    id="audioPing"
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 hidden"
+                ></span>
+
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+            </span>
+
+            <span class="text-xs font-cinzel text-amber-300 font-semibold tracking-wider hidden sm:inline">
+                Jana Gana Mana
+            </span>
+        </div>
+
+        <button
+            id="toggleAudioBtn"
+            onclick="toggleAudio()"
+            class="bg-gradient-to-r from-amber-500 to-orange-600 text-gray-950 font-bold px-3 py-1.5 rounded-full text-xs flex items-center gap-2 shadow-lg hover:brightness-110 transition-all active:scale-95"
+            data-testid="audio-toggle-btn"
+        >
+            <i id="audioIcon" class="fa-solid fa-play"></i>
+            <span id="audioBtnText">Play Anthem</span>
+        </button>
+    </div>
+
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-10 relative">
+
+        <div
+            id="envelopeScreen"
+            class="w-full max-w-xl transition-all duration-700 ease-in-out transform flex flex-col items-center"
+        >
+
+            <div class="text-center mb-8 animate-float">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FF9933] via-white to-[#138808] mb-3">
+                    A Royal Tricolor Invitation
+                </h1>
+
+                <p class="text-gray-400 text-sm sm:text-base font-light">
+                    An immersive patriotic tribute crafted with pride &amp; devotion.
+                </p>
+            </div>
+
+            <div
+                class="relative w-full max-w-md bg-[#dcd0bb] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] border-4 border-[#c5b38a] p-2 cursor-pointer group hover:scale-[1.01] transition-transform"
+                onclick="openEnvelope()"
+                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEnvelope()}"
+                role="button"
+                tabindex="0"
+                aria-label="Open the sealed Independence Day envelope"
+                data-testid="envelope-container"
+            >
+
+                <div class="relative bg-[#f4ebe1] rounded-lg p-6 sm:p-10 flex flex-col items-center justify-center min-h-[300px] sm:min-h-[350px] shadow-inner overflow-hidden">
+
+                    <div
+                        id="envelopeFlap"
+                        class="absolute top-0 left-0 w-full h-36 bg-[#e2d3bc] origin-top transition-all duration-700 z-20 border-b-2 border-[#c5b38a] shadow-md flex items-start justify-center pt-3"
+                        style="clip-path: polygon(0 0, 50% 100%, 100% 0);"
+                    ></div>
+
+                    <div class="absolute z-30 top-28 sm:top-32 transform -translate-y-1/2">
+                        <div
+                            class="wax-seal w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-4 border-amber-600 shadow-2xl group-hover:rotate-12 transition-transform"
+                            data-testid="wax-seal"
+                        >
+                            <i class="fa-solid fa-dharmachakra text-amber-200 text-2xl sm:text-3xl animate-spin-slow"></i>
+                        </div>
+                    </div>
+
+                    <div class="mt-16 text-center z-10" data-testid="envelope-preview">
+                        <div class="inline-block border-2 border-dashed border-amber-800/60 px-4 py-2 rounded mb-4 bg-amber-50/50">
+                            <p class="text-xs font-cinzel font-bold text-amber-900 uppercase tracking-widest">
+                                Official State Scroll
+                            </p>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-cinzel font-bold text-gray-900">
+                            Click to Unseal &amp; Open
+                        </h3>
+
+                        <p class="text-xs sm:text-sm text-gray-600 mt-2 font-medium">
+                            Experience the Royal Parchment &amp; Tricolor Card
+                        </p>
+                    </div>
+
+                    <div class="absolute bottom-0 left-0 w-full h-2 flex z-20">
+                        <div class="w-1/3 bg-[#FF9933]"></div>
+                        <div class="w-1/3 bg-white"></div>
+                        <div class="w-1/3 bg-[#138808]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button
+                    onclick="openEnvelope()"
+                    class="bg-gradient-to-r from-orange-500 via-amber-500 to-green-600 text-gray-950 font-bold px-8 py-3 rounded-full shadow-xl hover:scale-105 transition-all text-sm sm:text-base tracking-wider font-cinzel uppercase flex items-center gap-3 mx-auto"
+                    data-testid="open-envelope-btn"
+                >
+                    <i class="fa-solid fa-envelope-open"></i>
+                    Open Sovereign Seal
+                </button>
+            </div>
+        </div>
+
+        <div
+            id="mainContent"
+            class="w-full max-w-5xl hidden opacity-0 transition-all duration-1000 ease-out transform translate-y-8"
+            data-testid="main-content"
+        >
+
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-8">
+                <button
+                    onclick="switchFormat('scroll')"
+                    id="btnScroll"
+                    class="px-6 py-3 rounded-full font-cinzel font-bold text-sm tracking-wider transition-all shadow-lg bg-amber-600 text-amber-50 border-2 border-amber-400 flex items-center gap-2"
+                    data-testid="tab-scroll-btn"
+                >
+                    <i class="fa-scroll fa-solid"></i>
+                    Royal Scroll Format
+                </button>
+
+                <button
+                    onclick="switchFormat('card')"
+                    id="btnCard"
+                    class="px-6 py-3 rounded-full font-cinzel font-bold text-sm tracking-wider transition-all shadow-lg bg-gray-900/80 text-gray-300 border-2 border-gray-700 hover:border-amber-500 flex items-center gap-2"
+                    data-testid="tab-card-btn"
+                >
+                    <i class="fa-id-card fa-solid"></i>
+                    Modern Glassmorphism Card
+                </button>
+            </div>
+
+            <div
+                class="flex flex-wrap items-center justify-center gap-2 mb-6"
+                role="group"
+                aria-label="Choose greeting language"
+                data-testid="language-switcher"
+            >
+                <span class="text-xs text-gray-400 font-cinzel mr-1">
+                    Language:
+                </span>
+
+                <button
+                    onclick="switchLanguage('en')"
+                    class="language-btn px-4 py-2 rounded-full text-xs font-semibold bg-amber-500 text-gray-950"
+                    data-lang="en"
+                    data-testid="language-english-button"
+                >
+                    English
+                </button>
+
+                <button
+                    onclick="switchLanguage('hi')"
+                    class="language-btn px-4 py-2 rounded-full text-xs font-semibold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500"
+                    data-lang="hi"
+                    data-testid="language-hindi-button"
+                >
+                    हिन्दी
+                </button>
+
+                <button
+                    onclick="switchLanguage('bn')"
+                    class="language-btn px-4 py-2 rounded-full text-xs font-semibold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500"
+                    data-lang="bn"
+                    data-testid="language-bengali-button"
+                >
+                    বাংলা
+                </button>
+
+                <button
+                    onclick="switchLanguage('ta')"
+                    class="language-btn px-4 py-2 rounded-full text-xs font-semibold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500"
+                    data-lang="ta"
+                    data-testid="language-tamil-button"
+                >
+                    தமிழ்
+                </button>
+            </div>
+
+            <div id="formatScroll" class="w-full transition-all duration-500">
+                <div
+                    class="parchment-texture text-gray-900 rounded-2xl shadow-2xl border-8 border-[#8b6508] p-6 sm:p-12 md:p-16 relative overflow-hidden my-4"
+                    data-testid="royal-scroll-panel"
+                >
+
+                    <div class="absolute top-3 left-3 text-amber-800 text-2xl font-cinzel">
+                        <i class="fa-solid fa-chess-rook"></i>
+                    </div>
+
+                    <div class="absolute top-3 right-3 text-amber-800 text-2xl font-cinzel">
+                        <i class="fa-solid fa-chess-rook"></i>
+                    </div>
+
+                    <div class="absolute bottom-3 left-3 text-amber-800 text-2xl font-cinzel">
+                        <i class="fa-solid fa-chess-rook"></i>
+                    </div>
+
+                    <div class="absolute bottom-3 right-3 text-amber-800 text-2xl font-cinzel">
+                        <i class="fa-solid fa-chess-rook"></i>
+                    </div>
+
+                    <div class="text-center border-b-2 border-amber-800/30 pb-6 mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 border-2 border-amber-700 text-amber-800 mb-3 shadow-md">
+                            <i class="fa-solid fa-dharmachakra text-3xl animate-spin-slow text-navyChakra"></i>
+                        </div>
+
+                        <h2
+                            id="scrollTitle"
+                            class="text-3xl sm:text-5xl font-rozha text-amber-950 tracking-wide mb-2"
+                            data-testid="scroll-greeting-title"
+                        >
+                            Jai Hind &amp; Sovereign Greetings
+                        </h2>
+
+                        <p
+                            id="scrollSubtitle"
+                            class="text-amber-900/80 font-cinzel text-sm sm:text-base tracking-widest uppercase"
+                            data-testid="scroll-greeting-subtitle"
+                        >
+                            Historic Parchment Edition — Commemorating Pride &amp; Heritage
+                        </p>
+                    </div>
+
+                    <div class="space-y-6 text-gray-800 font-serif leading-relaxed text-base sm:text-lg max-w-3xl mx-auto text-justify">
+
+                        <p
+                            id="scrollMessage1"
+                            class="first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-amber-900"
+                            data-testid="scroll-message-one"
+                        >
+                            Let us honor the eternal spirit of freedom, unity, and resilience that defines our great nation. Across hills, valleys, bustling cities, and serene villages, the Tricolor stands tall as a beacon of hope and unwavering determination.
+                        </p>
+
+                        <p id="scrollMessage2" data-testid="scroll-message-two">
+                            This royal proclamation serves as a reminder of our collective duty to uphold justice, liberty, equality, and fraternity. Every thread of saffron, white, and green tells a story of supreme sacrifice and visionary dreams.
+                        </p>
+
+                        <div class="my-8 p-6 bg-amber-100/70 border-l-4 border-amber-700 rounded-r-lg shadow-inner text-center font-cinzel">
+                            <p
+                                class="text-xs tracking-widest text-amber-800 uppercase font-bold mb-2"
+                                data-testid="anthem-tribute-label"
+                            >
+                                National Anthem Tribute
+                            </p>
+
+                            <p class="text-lg sm:text-xl font-bold text-amber-950 italic mb-2">
+                                "Jana Gana Mana Adhinayaka Jaya He,<br>
+                                Bharata Bhagya Vidhata!"
+                            </p>
+
+                            <p class="text-xs sm:text-sm text-gray-700 font-sans mt-2">
+                                Thou art the ruler of the minds of all people, Dispenser of India's destiny.
+                            </p>
+                        </div>
+
+                        <p id="scrollMessage3" data-testid="scroll-message-three">
+                            May this portal bring joy, patriotic fervor, and connection to your heart. Let us march forward into a brilliant tomorrow with unity and unwavering pride.
+                        </p>
+                    </div>
+
+                    <div class="mt-12 pt-8 border-t-2 border-amber-800/30 flex flex-col sm:flex-row justify-between items-center gap-6">
+                        <div class="text-center sm:text-left">
+                            <p class="text-xs font-cinzel uppercase tracking-wider text-amber-900/70">
+                                Authorized Creator
+                            </p>
+
+                            <p class="text-xl font-rozha text-amber-950">
+                                Yash
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <span class="inline-block w-4 h-4 rounded-full bg-[#FF9933]"></span>
+                            <span class="inline-block w-4 h-4 rounded-full bg-white border border-gray-400"></span>
+                            <span class="inline-block w-4 h-4 rounded-full bg-[#138808]"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="formatCard" class="w-full hidden transition-all duration-500">
+                <div
+                    class="glass-tricolor rounded-3xl p-8 sm:p-12 shadow-[0_0_50px_rgba(255,153,51,0.15)] relative overflow-hidden border border-amber-500/30 my-4"
+                    data-testid="glassmorphism-panel"
+                >
+
+                    <div class="absolute -top-24 -right-24 w-72 h-72 bg-orange-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-gray-800 pb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg text-gray-950 font-bold text-xl">
+                                <i class="fa-solid fa-flag"></i>
+                            </div>
+
+                            <div>
+                                <h3
+                                    id="cardTitle"
+                                    class="text-2xl font-cinzel font-bold text-white tracking-wide"
+                                    data-testid="glass-card-title"
+                                >
+                                    Sovereign Pulse
+                                </h3>
+
+                                <p
+                                    id="cardSubtitle"
+                                    class="text-xs text-amber-400 font-mono tracking-widest uppercase"
+                                    data-testid="glass-card-subtitle"
+                                >
+                                    High-Tech Minimalist Edition
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-300 text-xs font-mono">
+                            V 2.0 Active
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+                        <div
+                            class="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 hover:border-amber-500/50 transition-colors"
+                            data-testid="unity-feature-card"
+                        >
+                            <div class="text-amber-400 text-2xl mb-3">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+
+                            <h4 class="text-white font-cinzel font-bold mb-1">
+                                Unbreakable Unity
+                            </h4>
+
+                            <p class="text-gray-400 text-sm">
+                                Rooted in heritage, soaring into futuristic heights with collective resolve.
+                            </p>
+                        </div>
+
+                        <div
+                            class="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 hover:border-white/50 transition-colors"
+                            data-testid="progress-feature-card"
+                        >
+                            <div class="text-white text-2xl mb-3">
+                                <i class="fa-solid fa-dove"></i>
+                            </div>
+
+                            <h4 class="text-white font-cinzel font-bold mb-1">
+                                Peace &amp; Progress
+                            </h4>
+
+                            <p class="text-gray-400 text-sm">
+                                Striving toward technological excellence while guarding ancestral values.
+                            </p>
+                        </div>
+
+                        <div
+                            class="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 hover:border-emerald-500/50 transition-colors"
+                            data-testid="future-feature-card"
+                        >
+                            <div class="text-emerald-400 text-2xl mb-3">
+                                <i class="fa-solid fa-seedling"></i>
+                            </div>
+
+                            <h4 class="text-white font-cinzel font-bold mb-1">
+                                Sustainable Future
+                            </h4>
+
+                            <p class="text-gray-400 text-sm">
+                                Cultivating a greener, brighter, and prosperous nation for generations.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-orange-500/10 via-white/5 to-emerald-500/10 border border-amber-500/20 rounded-2xl p-6 text-center">
+                        <p class="text-amber-200 font-cinzel italic text-base sm:text-lg mb-2">
+                            "A nation's culture resides in the hearts and in the soul of its people."
+                        </p>
+
+                        <p class="text-xs font-mono text-gray-400">
+                            — Mahatma Gandhi
+                        </p>
+                    </div>
+
+                    <div
+                        class="mt-8 p-5 bg-gray-950/50 border border-amber-500/30 rounded-2xl"
+                        data-testid="personalized-share-panel"
+                    >
+                        <label
+                            for="wishName"
+                            class="block text-sm text-amber-200 font-cinzel mb-2"
+                        >
+                            Personalize this greeting
+                        </label>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input
+                                id="wishName"
+                                type="text"
+                                maxlength="40"
+                                placeholder="Enter your name"
+                                class="flex-1 bg-gray-950/70 border border-gray-700 rounded-lg px-4 py-3 text-white outline-none focus:border-amber-400"
+                                data-testid="personalized-name-input"
+                            >
+
+                            <button
+                                id="shareWishBtn"
+                                type="button"
+                                onclick="sharePersonalizedWish()"
+                                class="bg-[#25D366] hover:bg-[#20ba5a] text-gray-950 font-bold px-5 py-3 rounded-lg transition-all hover:scale-[1.02]"
+                                data-testid="personalized-share-button"
+                            >
+                                Share my wish ↗
+                            </button>
+                        </div>
+
+                        <p
+                            id="shareFeedback"
+                            class="text-xs text-gray-400 mt-3 min-h-[16px]"
+                            aria-live="polite"
+                            data-testid="personalized-share-feedback"
+                        ></p>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center gap-2 text-sm text-gray-400">
+                            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                            Verified Tricolor Experience
+                        </div>
+
+                        <button
+                            onclick="switchFormat('scroll')"
+                            class="text-amber-400 hover:text-amber-300 text-sm font-cinzel underline underline-offset-4 transition-colors"
+                            data-testid="return-to-scroll-button"
+                        >
+                            Switch back to Royal Scroll &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        class="w-full bg-[#070a14] border-t border-gray-800 py-8 px-4 sm:px-6 relative z-10"
+        data-testid="footer-container"
+    >
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+
+            <div>
+                <p class="text-sm font-cinzel text-gray-300 font-semibold tracking-wider">
+                    Tricolor Sovereign Portal
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    Celebrating heritage with royal parchment &amp; modern minimalism.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a
+                    href="https://wa.me/9060170251"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2 transition-all hover:scale-105 text-sm"
+                    data-testid="whatsapp-contact-button"
+                >
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    Contact on WhatsApp
+                </a>
+
+                <div
+                    class="bg-gray-900 border border-amber-500/40 px-5 py-2.5 rounded-full shadow-md flex items-center gap-2"
+                    data-testid="made-by-yash-badge"
+                >
+                    <span class="text-xs text-gray-400 font-mono">
+                        Crafted with Pride
+                    </span>
+
+                    <span class="text-amber-400 font-bold text-sm font-cinzel">
+                        Made by Yash
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const audio = document.getElementById('anthemAudio');
+        const toggleAudioBtn = document.getElementById('toggleAudioBtn');
+        const audioIcon = document.getElementById('audioIcon');
+        const audioBtnText = document.getElementById('audioBtnText');
+        const audioPing = document.getElementById('audioPing');
+
+        let isPlaying = false;
+
+        function toggleAudio() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                audioIcon.className = "fa-solid fa-play";
+                audioBtnText.innerText = "Play Anthem";
+                audioPing.classList.add('hidden');
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    audioIcon.className = "fa-solid fa-pause";
+                    audioBtnText.innerText = "Pause Anthem";
+                    audioPing.classList.remove('hidden');
+                }).catch(err => {
+                    console.log("Audio autoplay restricted:", err);
+                    alert("Please click anywhere or interact to enable audio playback.");
+                });
+            }
+        }
+
+        function openEnvelope() {
+            const envelopeScreen = document.getElementById('envelopeScreen');
+            const mainContent = document.getElementById('mainContent');
+            const envelopeFlap = document.getElementById('envelopeFlap');
+
+            envelopeFlap.style.transform = 'rotateX(180deg)';
+
+            if (!isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    audioIcon.className = "fa-solid fa-pause";
+                    audioBtnText.innerText = "Pause Anthem";
+                    audioPing.classList.remove('hidden');
+                }).catch(e => console.log(e));
+            }
+
+            setTimeout(() => {
+                envelopeScreen.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+
+                setTimeout(() => {
+                    envelopeScreen.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        mainContent.classList.remove('opacity-0', 'translate-y-8');
+                    }, 50);
+                }, 500);
+            }, 600);
+        }
+
+        function switchFormat(format) {
+            const formatScroll = document.getElementById('formatScroll');
+            const formatCard = document.getElementById('formatCard');
+            const btnScroll = document.getElementById('btnScroll');
+            const btnCard = document.getElementById('btnCard');
+
+            if (format === 'scroll') {
+                formatScroll.classList.remove('hidden');
+                formatCard.classList.add('hidden');
+
+                btnScroll.className =
+                    "px-6 py-3 rounded-full font-cinzel font-bold text-sm tracking-wider transition-all shadow-lg bg-amber-600 text-amber-50 border-2 border-amber-400 flex items-center gap-2";
+
+                btnCard.className =
+                    "px-6 py-3 rounded-full font-cinzel font-bold text-sm tracking-wider transition-all shadow-lg bg-gray-900/80 text-gray-300 border-2 border-gray-700 hover:border-amber-500 flex items-center gap-2";
+            } else {
+                formatScroll.classList.add('hidden');
+                formatCard.classList.remove('hidden');
+
+                btnCard.className =
+                    "px-6 py-3 rounded-full font-cinzel font-bold text-sm tracking-wider transition-all shadow-lg bg-amber-600 text-amber-50 border-2 border-amber-400 flex items-center gap-2";
+
+                btnScroll.className =
+                    "px-6 py-3 rounded-full font-cinzel font-bold text-sm tracking-wider transition-all shadow-lg bg-gray-900/80 text-gray-300 border-2 border-gray-700 hover:border-amber-500 flex items-center gap-2";
+            }
+        }
+
+        const greetings = {
+            en: {
+                title: 'Jai Hind & Sovereign Greetings',
+                subtitle: 'Historic Parchment Edition — Commemorating Pride & Heritage',
+                one: 'Let us honor the eternal spirit of freedom, unity, and resilience that defines our great nation. Across hills, valleys, bustling cities, and serene villages, the Tricolor stands tall as a beacon of hope and unwavering determination.',
+                two: 'This royal proclamation serves as a reminder of our collective duty to uphold justice, liberty, equality, and fraternity. Every thread of saffron, white, and green tells a story of supreme sacrifice and visionary dreams.',
+                three: 'May this portal bring joy, patriotic fervor, and connection to your heart. Let us march forward into a brilliant tomorrow with unity and unwavering pride.',
+                card: 'Sovereign Pulse',
+                cardSub: 'High-Tech Minimalist Edition',
+                share: 'wishes you a very Happy Independence Day! Jai Hind 🇮🇳'
+            },
+
+            hi: {
+                title: 'जय हिन्द एवं हार्दिक शुभकामनाएं',
+                subtitle: 'ऐतिहासिक तिरंगा संस्करण — गर्व और विरासत का उत्सव',
+                one: 'आइए उस स्वतंत्रता, एकता और साहस की भावना को नमन करें जो हमारे महान राष्ट्र की पहचान है। पहाड़ों, घाटियों, शहरों और गांवों में तिरंगा आशा और अटूट संकल्प का प्रतीक बनकर लहराता है।',
+                two: 'यह संदेश हमें न्याय, स्वतंत्रता, समानता और बंधुत्व के प्रति अपनी सामूहिक जिम्मेदारी की याद दिलाता है। केसरिया, सफेद और हरे रंग का हर धागा बलिदान और उज्ज्वल सपनों की कहानी कहता है।',
+                three: 'यह शुभकामना आपके दिल में आनंद और देशभक्ति जगाए। आइए एकता और गर्व के साथ उज्ज्वल भविष्य की ओर कदम बढ़ाएं।',
+                card: 'भारत की धड़कन',
+                cardSub: 'आधुनिक तिरंगा संस्करण',
+                share: 'आपको स्वतंत्रता दिवस की हार्दिक शुभकामनाएं! जय हिन्द 🇮🇳'
+            },
+
+            bn: {
+                title: 'জয় হিন্দ ও আন্তরিক শুভেচ্ছা',
+                subtitle: 'ঐতিহাসিক পার্চমেন্ট সংস্করণ — গর্ব ও ঐতিহ্যের উদযাপন',
+                one: 'আসুন স্বাধীনতা, ঐক্য ও সাহসের সেই চিরন্তন চেতনাকে সম্মান করি, যা আমাদের মহান দেশের পরিচয়। পাহাড়, উপত্যকা, শহর ও গ্রামে তেরঙ্গা আশা ও অটুট সংকল্পের প্রতীক হয়ে উড়ে চলে।',
+                two: 'এই বার্তা আমাদের ন্যায়, স্বাধীনতা, সাম্য ও ভ্রাতৃত্বের প্রতি সম্মিলিত দায়িত্বের কথা মনে করিয়ে দেয়। গেরুয়া, সাদা ও সবুজের প্রতিটি সুতো ত্যাগ ও স্বপ্নের গল্প বলে।',
+                three: 'এই শুভেচ্ছা আপনার হৃদয়ে আনন্দ ও দেশপ্রেম জাগিয়ে তুলুক। ঐক্য ও গর্বের সঙ্গে উজ্জ্বল ভবিষ্যতের দিকে এগিয়ে চলুন।',
+                card: 'ভারতের স্পন্দন',
+                cardSub: 'আধুনিক তেরঙ্গা সংস্করণ',
+                share: 'আপনাকে স্বাধীনতা দিবসের আন্তরিক শুভেচ্ছা! জয় হিন্দ 🇮🇳'
+            },
+
+            ta: {
+                title: 'ஜெய் ஹிந்த் — இனிய வாழ்த்துகள்',
+                subtitle: 'வரலாற்றுச் சுருள் பதிப்பு — பெருமை மற்றும் பாரம்பரியக் கொண்டாட்டம்',
+                one: 'நம் நாட்டின் அடையாளமான சுதந்திரம், ஒற்றுமை மற்றும் துணிச்சலின் அழியாத உணர்வை போற்றுவோம். மலைகள், பள்ளத்தாக்குகள், நகரங்கள் மற்றும் கிராமங்களில் மூவர்ணக் கொடி நம்பிக்கையின் சின்னமாக பறக்கிறது.',
+                two: 'நீதி, சுதந்திரம், சமத்துவம் மற்றும் சகோதரத்துவத்தைக் காக்கும் நமது பொறுப்பை இந்தச் செய்தி நினைவூட்டுகிறது. காவி, வெள்ளை, பச்சை நிறங்களின் ஒவ்வொரு நூலும் தியாகத்தின் கதையைச் சொல்கிறது.',
+                three: 'இந்த வாழ்த்து உங்கள் இதயத்தில் மகிழ்ச்சியையும் தேசப்பற்றையும் மலரச் செய்யட்டும். ஒற்றுமையுடனும் பெருமையுடனும் சிறந்த நாளை நோக்கி முன்னேறுவோம்.',
+                card: 'இந்தியத் துடிப்பு',
+                cardSub: 'நவீன மூவர்ணப் பதிப்பு',
+                share: 'இனிய சுதந்திர தின வாழ்த்துகள்! ஜெய் ஹிந்த் 🇮🇳'
+            }
+        };
+
+        let activeLanguage = 'en';
+
+        function switchLanguage(language) {
+            const text = greetings[language] || greetings.en;
+            activeLanguage = language;
+
+            document.getElementById('scrollTitle').textContent = text.title;
+            document.getElementById('scrollSubtitle').textContent = text.subtitle;
+            document.getElementById('scrollMessage1').textContent = text.one;
+            document.getElementById('scrollMessage2').textContent = text.two;
+            document.getElementById('scrollMessage3').textContent = text.three;
+            document.getElementById('cardTitle').textContent = text.card;
+            document.getElementById('cardSubtitle').textContent = text.cardSub;
+
+            document.querySelectorAll('.language-btn').forEach((button) => {
+                const selected = button.dataset.lang === language;
+
+                button.className = selected
+                    ? 'language-btn px-4 py-2 rounded-full text-xs font-semibold bg-amber-500 text-gray-950'
+                    : 'language-btn px-4 py-2 rounded-full text-xs font-semibold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500';
+
+                button.setAttribute('aria-pressed', String(selected));
+            });
+        }
+
+        function sharePersonalizedWish() {
+            const name =
+                document.getElementById('wishName').value.trim() ||
+                'A proud Indian';
+
+            const feedback = document.getElementById('shareFeedback');
+
+            const text =
+                `${name} ${greetings[activeLanguage].share} ${window.location.href}`;
+
+            feedback.textContent =
+                'Opening WhatsApp with your personalized wish…';
+
+            window.open(
+                `https://wa.me/?text=${encodeURIComponent(text)}`,
+                '_blank',
+                'noopener,noreferrer'
+            );
+        }
+    </script>
+</body>
+</html>
