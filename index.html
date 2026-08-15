@@ -141,7 +141,18 @@
             display: block;
         }
 
-        body > *:not(#bgCanvas) {
+        /* ============ CURSOR / TOUCH TRICOLOR TRAIL ============ */
+        #cursorTrailCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none;
+            display: block;
+        }
+
+        body > *:not(#bgCanvas):not(#cursorTrailCanvas) {
             position: relative;
             z-index: 1;
         }
@@ -218,6 +229,7 @@
 <body class="bg-[#0A0F1D] text-gray-100 font-inter min-h-screen flex flex-col justify-between overflow-x-hidden">
 
     <canvas id="bgCanvas" aria-hidden="true"></canvas>
+    <canvas id="cursorTrailCanvas" aria-hidden="true"></canvas>
 
     <audio id="anthemAudio" loop preload="auto">
         <source
@@ -415,10 +427,6 @@
                     </div>
 
                     <div class="absolute top-3 right-3 text-amber-800 text-2xl font-cinzel">
-                        <i class="fa-solid fa-chess-rook"></i>
-                    </div>
-
-                    <div class="absolute bottom-3 right-3 text-amber-800 text-2xl font-cinzel">
                         <i class="fa-solid fa-chess-rook"></i>
                     </div>
 
@@ -939,6 +947,100 @@
         }
 
         /* =========================================================
+           CURSOR / TOUCH TRICOLOR SPARKLE TRAIL
+        ========================================================= */
+        const trailCanvas = document.getElementById('cursorTrailCanvas');
+        const trailCtx = trailCanvas.getContext('2d');
+        let trailW, trailH, trailDPR;
+
+        function resizeTrailCanvas() {
+            trailDPR = Math.min(window.devicePixelRatio || 1, 2);
+            trailW = window.innerWidth;
+            trailH = window.innerHeight;
+            trailCanvas.width = trailW * trailDPR;
+            trailCanvas.height = trailH * trailDPR;
+            trailCanvas.style.width = trailW + 'px';
+            trailCanvas.style.height = trailH + 'px';
+            trailCtx.setTransform(trailDPR, 0, 0, trailDPR, 0, 0);
+        }
+        window.addEventListener('resize', resizeTrailCanvas);
+        resizeTrailCanvas();
+
+        const trailColors = ['#FF9933', '#FFFFFF', '#138808', '#FFD700'];
+        let trailParticles = [];
+
+        function spawnTrailParticle(x, y) {
+            trailParticles.push({
+                x,
+                y,
+                size: 2 + Math.random() * 3,
+                life: 1,
+                decay: 0.02 + Math.random() * 0.015,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6 - 0.2,
+                color: trailColors[Math.floor(Math.random() * trailColors.length)]
+            });
+            if (trailParticles.length > 120) {
+                trailParticles.splice(0, trailParticles.length - 120);
+            }
+        }
+
+        function trailTick() {
+            trailCtx.clearRect(0, 0, trailW, trailH);
+
+            trailParticles = trailParticles.filter((pt) => pt.life > 0);
+            trailParticles.forEach((pt) => {
+                pt.x += pt.vx;
+                pt.y += pt.vy;
+                pt.life -= pt.decay;
+
+                trailCtx.save();
+                trailCtx.globalAlpha = Math.max(pt.life, 0);
+                trailCtx.beginPath();
+                trailCtx.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI * 2);
+                trailCtx.fillStyle = pt.color;
+                trailCtx.shadowColor = pt.color;
+                trailCtx.shadowBlur = 6;
+                trailCtx.fill();
+                trailCtx.restore();
+            });
+
+            requestAnimationFrame(trailTick);
+        }
+
+        if (!prefersReducedMotion) {
+            trailTick();
+
+            let lastTrailTime = 0;
+            function handlePointerMove(clientX, clientY) {
+                const now = performance.now();
+                if (now - lastTrailTime < 16) return;
+                lastTrailTime = now;
+                spawnTrailParticle(clientX, clientY);
+            }
+
+            window.addEventListener('mousemove', (e) => {
+                handlePointerMove(e.clientX, e.clientY);
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    handlePointerMove(touch.clientX, touch.clientY);
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchstart', (e) => {
+                if (e.touches && e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    for (let i = 0; i < 6; i++) {
+                        spawnTrailParticle(touch.clientX, touch.clientY);
+                    }
+                }
+            }, { passive: true });
+        }
+
+        /* =========================================================
            CONFETTI / PARTY POPPERS
         ========================================================= */
         function fireConfettiBurst() {
@@ -1186,12 +1288,15 @@
             const name = wisherName || 'A Proud Indian';
 
             const feedback = document.getElementById('shareFeedback');
-            const pageUrl = window.location.href.split('#')[0];
 
+            let pageUrl = window.location.href.split('#')[0];
+            if (/^(about|blob|srcdoc|data|null|file):/i.test(pageUrl) || pageUrl.includes('srcdoc')) {
+                pageUrl = 'https://yashraj-personal.github.io/INDEPENDENCE-DAY/';
+            }
+
+            const flag = '\uD83C\uDDEE\uD83C\uDDF3';
             const message =
-                `\uD83E\uDDE1\uD83E\uDD0D\uD83D\uDC9A ${name} wishes you and your family a very HAPPY 79TH INDEPENDENCE DAY! \uD83C\uDDEE\uD83C\uDDF3\n` +
-                `\u2728\uD83C\uDF81 I have sent a special Independence Day greeting card just for you! \uD83D\uDCDC\n` +
-                `Click the link below to open your envelope:\n` +
+                `${name} wishes you a very Happy Independence Day! Jai Hind ${flag}\n` +
                 `${pageUrl}`;
 
             feedback.textContent =
