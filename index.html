@@ -6,6 +6,7 @@
     <title>Tricolor Royal Greeting & Scroll | Made by Yash</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -128,10 +129,95 @@
             background: #FF9933;
             border-radius: 4px;
         }
+
+        /* ============ FLOATING BACKGROUND CANVAS ============ */
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            display: block;
+        }
+
+        body > *:not(#bgCanvas) {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ SPINNING ASHOK CHAKRA WATERMARK (letter bg) ============ */
+        .chakra-watermark {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(480px, 85%);
+            aspect-ratio: 1 / 1;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+            animation: chakraSpin 50s linear infinite;
+        }
+
+        .chakra-watermark svg .chakra-ring {
+            stroke: #000080;
+            fill: none;
+        }
+
+        .chakra-watermark svg .chakra-spoke {
+            stroke: #000080;
+        }
+
+        .chakra-watermark svg .chakra-dot {
+            fill: #000080;
+        }
+
+        @keyframes chakraSpin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .letter-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ EXTRA PATRIOTIC ANIMATIONS ============ */
+        @keyframes shimmerText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .shimmer-title {
+            background-size: 200% auto;
+            animation: shimmerText 4s ease-in-out infinite;
+        }
+
+        @keyframes flagWave {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            25% { transform: rotate(1.5deg) translateY(-2px); }
+            75% { transform: rotate(-1.5deg) translateY(2px); }
+        }
+
+        .animate-flag-wave {
+            animation: flagWave 3.5s ease-in-out infinite;
+            transform-origin: top center;
+        }
+
+        @keyframes gentlePulseBorder {
+            0%, 100% { border-color: rgba(255, 153, 51, 0.4); }
+            50% { border-color: rgba(19, 136, 8, 0.6); }
+        }
+
+        .animate-pulse-border {
+            animation: gentlePulseBorder 3s ease-in-out infinite;
+        }
     </style>
 </head>
 
 <body class="bg-[#0A0F1D] text-gray-100 font-inter min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
     <audio id="anthemAudio" loop preload="auto">
         <source
@@ -183,7 +269,7 @@
         >
 
             <div class="text-center mb-8 animate-float">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FF9933] via-white to-[#138808] mb-3">
+                <h1 class="shimmer-title text-3xl sm:text-4xl md:text-5xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FF9933] via-white to-[#138808] mb-3">
                     A Royal Tricolor Invitation
                 </h1>
 
@@ -212,6 +298,7 @@
 
                     <div class="absolute z-30 top-28 sm:top-32 transform -translate-y-1/2">
                         <div
+                            id="waxSeal"
                             class="wax-seal w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-4 border-amber-600 shadow-2xl group-hover:rotate-12 transition-transform"
                             data-testid="wax-seal"
                         >
@@ -311,23 +398,6 @@
                     हिन्दी
                 </button>
 
-                <button
-                    onclick="switchLanguage('bn')"
-                    class="language-btn px-4 py-2 rounded-full text-xs font-semibold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500"
-                    data-lang="bn"
-                    data-testid="language-bengali-button"
-                >
-                    বাংলা
-                </button>
-
-                <button
-                    onclick="switchLanguage('ta')"
-                    class="language-btn px-4 py-2 rounded-full text-xs font-semibold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500"
-                    data-lang="ta"
-                    data-testid="language-tamil-button"
-                >
-                    தமிழ்
-                </button>
             </div>
 
             <div id="formatScroll" class="w-full transition-all duration-500">
@@ -336,15 +406,15 @@
                     data-testid="royal-scroll-panel"
                 >
 
+                    <div class="chakra-watermark chakra-generate" data-size="480" data-spoke="#000080" data-ring="#000080" data-dot="#000080" aria-hidden="true"></div>
+
+                    <div class="letter-content">
+
                     <div class="absolute top-3 left-3 text-amber-800 text-2xl font-cinzel">
                         <i class="fa-solid fa-chess-rook"></i>
                     </div>
 
                     <div class="absolute top-3 right-3 text-amber-800 text-2xl font-cinzel">
-                        <i class="fa-solid fa-chess-rook"></i>
-                    </div>
-
-                    <div class="absolute bottom-3 left-3 text-amber-800 text-2xl font-cinzel">
                         <i class="fa-solid fa-chess-rook"></i>
                     </div>
 
@@ -370,7 +440,7 @@
                             class="text-amber-900/80 font-cinzel text-sm sm:text-base tracking-widest uppercase"
                             data-testid="scroll-greeting-subtitle"
                         >
-                            Historic Parchment Edition — Commemorating Pride &amp; Heritage
+                            79th Independence Day Edition — Commemorating Pride &amp; Heritage
                         </p>
                     </div>
 
@@ -381,44 +451,55 @@
                             class="first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-amber-900"
                             data-testid="scroll-message-one"
                         >
-                            Let us honor the eternal spirit of freedom, unity, and resilience that defines our great nation. Across hills, valleys, bustling cities, and serene villages, the Tricolor stands tall as a beacon of hope and unwavering determination.
+                            Let us honor the eternal spirit of freedom, unity, and sacrifice that defines our great nation. From the soaring Himalayas to the vast ocean shores, the Tricolor flies high as a timeless beacon of hope, resilience, and sovereignty.
                         </p>
 
                         <p id="scrollMessage2" data-testid="scroll-message-two">
-                            This royal proclamation serves as a reminder of our collective duty to uphold justice, liberty, equality, and fraternity. Every thread of saffron, white, and green tells a story of supreme sacrifice and visionary dreams.
+                            Today, as India celebrates 79 glorious years of independence, we bow in gratitude to the brave souls who gave their all for our liberty. Every shade of saffron, white, and green reflects the rich history, courage, and vision of a nation striving for greatness.
                         </p>
 
-                        <div class="my-8 p-6 bg-amber-100/70 border-l-4 border-amber-700 rounded-r-lg shadow-inner text-center font-cinzel">
+                        <div class="my-8 p-6 bg-amber-100/70 border-l-4 border-amber-700 rounded-r-lg shadow-inner text-center font-cinzel animate-pulse-border border-l-4">
                             <p
+                                id="anthemLabel"
                                 class="text-xs tracking-widest text-amber-800 uppercase font-bold mb-2"
                                 data-testid="anthem-tribute-label"
                             >
-                                National Anthem Tribute
+                                National Tribute
                             </p>
 
-                            <p class="text-lg sm:text-xl font-bold text-amber-950 italic mb-2">
-                                "Jana Gana Mana Adhinayaka Jaya He,<br>
-                                Bharata Bhagya Vidhata!"
+                            <p id="anthemQuote" class="text-lg sm:text-xl font-bold text-amber-950 italic mb-2">
+                                "Vande Mataram! I bow to thee, Motherland!"
                             </p>
 
-                            <p class="text-xs sm:text-sm text-gray-700 font-sans mt-2">
-                                Thou art the ruler of the minds of all people, Dispenser of India's destiny.
+                            <p id="anthemSub" class="text-xs sm:text-sm text-gray-700 font-sans mt-2">
+                                May the spirit of unity and selfless service guide our journey forward.
                             </p>
                         </div>
 
                         <p id="scrollMessage3" data-testid="scroll-message-three">
-                            May this portal bring joy, patriotic fervor, and connection to your heart. Let us march forward into a brilliant tomorrow with unity and unwavering pride.
+                            May this day fill your heart with immense pride and patriotic fervor. Let us come together to cherish our freedom, protect our values, and build a brighter, stronger tomorrow. Jai Hind! Vande Mataram!
                         </p>
                     </div>
 
                     <div class="mt-12 pt-8 border-t-2 border-amber-800/30 flex flex-col sm:flex-row justify-between items-center gap-6">
                         <div class="text-center sm:text-left">
-                            <p class="text-xs font-cinzel uppercase tracking-wider text-amber-900/70">
-                                Authorized Creator
+                            <p id="wishFromLabel" class="text-xs font-cinzel uppercase tracking-wider text-amber-900/70">
+                                Wish From
                             </p>
 
-                            <p class="text-xl font-rozha text-amber-950">
-                                Yash
+                            <button
+                                type="button"
+                                id="letterWisherNameBtn"
+                                onclick="focusWishNameInput()"
+                                class="group inline-flex items-center gap-2 text-xl font-rozha text-amber-950 hover:text-amber-800 transition-colors"
+                                data-testid="letter-wisher-name-button"
+                            >
+                                <span id="letterWisherName">A Proud Indian</span>
+                                <i class="fa-solid fa-pen text-xs text-amber-900/40 group-hover:text-amber-700 transition-colors"></i>
+                            </button>
+
+                            <p id="wishNameHint" class="text-[11px] text-amber-900/50 font-sans mt-1 italic">
+                                Click the name to personalize it
                             </p>
                         </div>
 
@@ -427,6 +508,8 @@
                             <span class="inline-block w-4 h-4 rounded-full bg-white border border-gray-400"></span>
                             <span class="inline-block w-4 h-4 rounded-full bg-[#138808]"></span>
                         </div>
+                    </div>
+
                     </div>
                 </div>
             </div>
@@ -443,7 +526,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-gray-800 pb-6">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg text-gray-950 font-bold text-xl">
-                                <i class="fa-solid fa-flag"></i>
+                                <i class="fa-solid fa-flag animate-flag-wave"></i>
                             </div>
 
                             <div>
@@ -646,6 +729,252 @@
 
         let isPlaying = false;
 
+        /* =========================================================
+           ASHOKA CHAKRA GENERATOR (24 spokes, real SVG, reusable)
+        ========================================================= */
+        function buildChakraSVG(spokeColor, ringColor, dotColor) {
+            const ns = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(ns, "svg");
+            svg.setAttribute("viewBox", "0 0 100 100");
+            svg.setAttribute("width", "100%");
+            svg.setAttribute("height", "100%");
+
+            const outerRing = document.createElementNS(ns, "circle");
+            outerRing.setAttribute("cx", 50);
+            outerRing.setAttribute("cy", 50);
+            outerRing.setAttribute("r", 44);
+            outerRing.setAttribute("class", "chakra-ring");
+            outerRing.setAttribute("stroke", ringColor);
+            outerRing.setAttribute("stroke-width", "2.4");
+            outerRing.setAttribute("fill", "none");
+            svg.appendChild(outerRing);
+
+            const innerRing = document.createElementNS(ns, "circle");
+            innerRing.setAttribute("cx", 50);
+            innerRing.setAttribute("cy", 50);
+            innerRing.setAttribute("r", 8.5);
+            innerRing.setAttribute("stroke", ringColor);
+            innerRing.setAttribute("stroke-width", "1.6");
+            innerRing.setAttribute("fill", "none");
+            svg.appendChild(innerRing);
+
+            const spokes = 24;
+            for (let i = 0; i < spokes; i++) {
+                const angle = (i * (360 / spokes)) * (Math.PI / 180);
+                const x1 = 50 + Math.cos(angle) * 9;
+                const y1 = 50 + Math.sin(angle) * 9;
+                const x2 = 50 + Math.cos(angle) * 43;
+                const y2 = 50 + Math.sin(angle) * 43;
+                const line = document.createElementNS(ns, "line");
+                line.setAttribute("x1", x1);
+                line.setAttribute("y1", y1);
+                line.setAttribute("x2", x2);
+                line.setAttribute("y2", y2);
+                line.setAttribute("class", "chakra-spoke");
+                line.setAttribute("stroke", spokeColor);
+                line.setAttribute("stroke-width", "1.6");
+                line.setAttribute("stroke-linecap", "round");
+                svg.appendChild(line);
+            }
+
+            const dot = document.createElementNS(ns, "circle");
+            dot.setAttribute("cx", 50);
+            dot.setAttribute("cy", 50);
+            dot.setAttribute("r", 3.4);
+            dot.setAttribute("class", "chakra-dot");
+            dot.setAttribute("fill", dotColor);
+            svg.appendChild(dot);
+
+            return svg;
+        }
+
+        function mountChakras() {
+            document.querySelectorAll('.chakra-generate').forEach((el) => {
+                const spoke = el.getAttribute('data-spoke') || '#000080';
+                const ring = el.getAttribute('data-ring') || '#000080';
+                const dot = el.getAttribute('data-dot') || '#000080';
+                el.appendChild(buildChakraSVG(spoke, ring, dot));
+            });
+        }
+        mountChakras();
+
+        /* =========================================================
+           FLOATING BACKGROUND — kites + falling marigold petals
+        ========================================================= */
+        const prefersReducedMotion =
+            window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let bgW, bgH, bgDPR;
+
+        function resizeBgCanvas() {
+            bgDPR = Math.min(window.devicePixelRatio || 1, 2);
+            bgW = window.innerWidth;
+            bgH = window.innerHeight;
+            bgCanvas.width = bgW * bgDPR;
+            bgCanvas.height = bgH * bgDPR;
+            bgCanvas.style.width = bgW + 'px';
+            bgCanvas.style.height = bgH + 'px';
+            bgCtx.setTransform(bgDPR, 0, 0, bgDPR, 0, 0);
+        }
+        window.addEventListener('resize', resizeBgCanvas);
+        resizeBgCanvas();
+
+        const kiteColors = ['#FF9933', '#FFD700', '#138808', '#f4f4f4'];
+        const kites = [];
+        const KITE_COUNT = window.innerWidth < 640 ? 4 : 7;
+        for (let k = 0; k < KITE_COUNT; k++) {
+            kites.push({
+                x: Math.random() * bgW,
+                y: Math.random() * bgH,
+                size: 20 + Math.random() * 26,
+                speedX: (Math.random() - 0.5) * 0.18,
+                speedY: -0.06 - Math.random() * 0.09,
+                rot: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.006,
+                color: kiteColors[k % kiteColors.length],
+                sway: Math.random() * Math.PI * 2
+            });
+        }
+
+        const petalColors = ['#FF9933', '#FFB347', '#FFD700', '#e8590c'];
+        const petals = [];
+        const PETAL_COUNT = window.innerWidth < 640 ? 14 : 26;
+        function makePetal(randomY) {
+            return {
+                x: Math.random() * bgW,
+                y: randomY ? Math.random() * bgH : -20,
+                size: 4 + Math.random() * 6,
+                speedY: 0.35 + Math.random() * 0.6,
+                sway: Math.random() * Math.PI * 2,
+                swaySpeed: 0.01 + Math.random() * 0.02,
+                rot: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.03,
+                color: petalColors[Math.floor(Math.random() * petalColors.length)]
+            };
+        }
+        for (let p = 0; p < PETAL_COUNT; p++) {
+            petals.push(makePetal(true));
+        }
+
+        function drawKite(kite) {
+            bgCtx.save();
+            bgCtx.translate(kite.x, kite.y);
+            bgCtx.rotate(kite.rot);
+            bgCtx.globalAlpha = 0.22;
+            const s = kite.size;
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, -s);
+            bgCtx.lineTo(s * 0.7, 0);
+            bgCtx.lineTo(0, s * 1.3);
+            bgCtx.lineTo(-s * 0.7, 0);
+            bgCtx.closePath();
+            bgCtx.fillStyle = kite.color;
+            bgCtx.fill();
+            bgCtx.strokeStyle = 'rgba(255,215,0,0.5)';
+            bgCtx.lineWidth = 0.6;
+            bgCtx.stroke();
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, -s);
+            bgCtx.lineTo(0, s * 1.3);
+            bgCtx.moveTo(-s * 0.7, 0);
+            bgCtx.lineTo(s * 0.7, 0);
+            bgCtx.strokeStyle = 'rgba(255,255,255,0.25)';
+            bgCtx.stroke();
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, s * 1.3);
+            bgCtx.quadraticCurveTo(s * 0.4, s * 1.9, 0, s * 2.6);
+            bgCtx.strokeStyle = kite.color;
+            bgCtx.globalAlpha = 0.14;
+            bgCtx.stroke();
+            bgCtx.restore();
+        }
+
+        function drawPetal(pt) {
+            bgCtx.save();
+            bgCtx.translate(pt.x, pt.y);
+            bgCtx.rotate(pt.rot);
+            bgCtx.globalAlpha = 0.55;
+            bgCtx.beginPath();
+            bgCtx.ellipse(0, 0, pt.size, pt.size * 0.6, 0, 0, Math.PI * 2);
+            bgCtx.fillStyle = pt.color;
+            bgCtx.fill();
+            bgCtx.restore();
+        }
+
+        function bgTick() {
+            bgCtx.clearRect(0, 0, bgW, bgH);
+
+            kites.forEach((kite) => {
+                kite.sway += 0.006;
+                kite.x += kite.speedX + Math.sin(kite.sway) * 0.12;
+                kite.y += kite.speedY;
+                kite.rot += kite.rotSpeed;
+                if (kite.y < -60) { kite.y = bgH + 60; kite.x = Math.random() * bgW; }
+                if (kite.x < -60) kite.x = bgW + 60;
+                if (kite.x > bgW + 60) kite.x = -60;
+                drawKite(kite);
+            });
+
+            petals.forEach((pt) => {
+                pt.sway += pt.swaySpeed;
+                pt.y += pt.speedY;
+                pt.x += Math.sin(pt.sway) * 0.6;
+                pt.rot += pt.rotSpeed;
+                if (pt.y > bgH + 20) {
+                    Object.assign(pt, makePetal(false));
+                }
+                drawPetal(pt);
+            });
+
+            requestAnimationFrame(bgTick);
+        }
+
+        if (!prefersReducedMotion) {
+            bgTick();
+        } else {
+            kites.forEach(drawKite);
+            petals.forEach(drawPetal);
+        }
+
+        /* =========================================================
+           CONFETTI / PARTY POPPERS
+        ========================================================= */
+        function fireConfettiBurst() {
+            const colors = ['#FF9933', '#FFFFFF', '#138808', '#FFD700'];
+            if (typeof confetti !== 'function') return;
+            const duration = 2400;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 65, origin: { x: 0 }, colors: colors });
+                confetti({ particleCount: 5, angle: 120, spread: 65, origin: { x: 1 }, colors: colors });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            })();
+
+            confetti({ particleCount: 140, spread: 100, origin: { y: 0.4 }, colors: colors, startVelocity: 45, scalar: 1.1 });
+            setTimeout(() => {
+                confetti({ particleCount: 90, spread: 120, origin: { y: 0.3, x: 0.3 }, colors: colors });
+                confetti({ particleCount: 90, spread: 120, origin: { y: 0.3, x: 0.7 }, colors: colors });
+            }, 300);
+        }
+
+        function sealBurstAt(el) {
+            if (typeof confetti !== 'function') return;
+            const rect = el.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+            confetti({
+                particleCount: 40,
+                spread: 70,
+                startVelocity: 22,
+                scalar: 0.7,
+                origin: { x: x, y: y },
+                colors: ['#FFD700', '#FF9933', '#ffffff']
+            });
+        }
+
         function toggleAudio() {
             if (isPlaying) {
                 audio.pause();
@@ -670,8 +999,13 @@
             const envelopeScreen = document.getElementById('envelopeScreen');
             const mainContent = document.getElementById('mainContent');
             const envelopeFlap = document.getElementById('envelopeFlap');
+            const waxSeal = document.getElementById('waxSeal');
 
             envelopeFlap.style.transform = 'rotateX(180deg)';
+
+            if (waxSeal) {
+                sealBurstAt(waxSeal);
+            }
 
             if (!isPlaying) {
                 audio.play().then(() => {
@@ -691,6 +1025,7 @@
 
                     setTimeout(() => {
                         mainContent.classList.remove('opacity-0', 'translate-y-8');
+                        fireConfettiBurst();
                     }, 50);
                 }, 500);
             }, 600);
@@ -726,50 +1061,35 @@
         const greetings = {
             en: {
                 title: 'Jai Hind & Sovereign Greetings',
-                subtitle: 'Historic Parchment Edition — Commemorating Pride & Heritage',
-                one: 'Let us honor the eternal spirit of freedom, unity, and resilience that defines our great nation. Across hills, valleys, bustling cities, and serene villages, the Tricolor stands tall as a beacon of hope and unwavering determination.',
-                two: 'This royal proclamation serves as a reminder of our collective duty to uphold justice, liberty, equality, and fraternity. Every thread of saffron, white, and green tells a story of supreme sacrifice and visionary dreams.',
-                three: 'May this portal bring joy, patriotic fervor, and connection to your heart. Let us march forward into a brilliant tomorrow with unity and unwavering pride.',
+                subtitle: '79th Independence Day Edition — Commemorating Pride & Heritage',
+                one: 'Let us honor the eternal spirit of freedom, unity, and sacrifice that defines our great nation. From the soaring Himalayas to the vast ocean shores, the Tricolor flies high as a timeless beacon of hope, resilience, and sovereignty.',
+                two: 'Today, as India celebrates 79 glorious years of independence, we bow in gratitude to the brave souls who gave their all for our liberty. Every shade of saffron, white, and green reflects the rich history, courage, and vision of a nation striving for greatness.',
+                anthemLabel: 'National Tribute',
+                anthemQuote: '"Vande Mataram! I bow to thee, Motherland!"',
+                anthemSub: 'May the spirit of unity and selfless service guide our journey forward.',
+                three: 'May this day fill your heart with immense pride and patriotic fervor. Let us come together to cherish our freedom, protect our values, and build a brighter, stronger tomorrow. Jai Hind! Vande Mataram!',
                 card: 'Sovereign Pulse',
                 cardSub: 'High-Tech Minimalist Edition',
-                share: 'wishes you a very Happy Independence Day! Jai Hind 🇮🇳'
+                wishFromLabel: 'Wish From'
             },
 
             hi: {
-                title: 'जय हिन्द एवं हार्दिक शुभकामनाएं',
-                subtitle: 'ऐतिहासिक तिरंगा संस्करण — गर्व और विरासत का उत्सव',
-                one: 'आइए उस स्वतंत्रता, एकता और साहस की भावना को नमन करें जो हमारे महान राष्ट्र की पहचान है। पहाड़ों, घाटियों, शहरों और गांवों में तिरंगा आशा और अटूट संकल्प का प्रतीक बनकर लहराता है।',
-                two: 'यह संदेश हमें न्याय, स्वतंत्रता, समानता और बंधुत्व के प्रति अपनी सामूहिक जिम्मेदारी की याद दिलाता है। केसरिया, सफेद और हरे रंग का हर धागा बलिदान और उज्ज्वल सपनों की कहानी कहता है।',
-                three: 'यह शुभकामना आपके दिल में आनंद और देशभक्ति जगाए। आइए एकता और गर्व के साथ उज्ज्वल भविष्य की ओर कदम बढ़ाएं।',
+                title: 'जय हिंद एवं स्वतंत्रता दिवस की शुभकामनाएं',
+                subtitle: '७९वाँ स्वतंत्रता दिवस — शौर्य, एकता और गौरव का प्रतीक',
+                one: 'आइये, हम स्वतंत्रता, एकता और बलिदान की उस अमर भावना को नमन करें जो हमारे महान भारतवर्ष की पहचान है। बर्फीली चोटियों से लेकर विशाल समुद्र तटों तक, हमारा तिरंगा आशा, साहस और संप्रभुता के अमर प्रतीक के रूप में गर्व से लहरा रहा है।',
+                two: 'आज, जब भारत अपनी स्वतंत्रता के ७९ गौरवशाली वर्ष मना रहा है, हम उन वीर सपूतों को ससम्मान याद करते हैं जिन्होंने देश की आज़ादी के लिए अपना सर्वस्व न्योछावर कर दिया। तिरंगे का हर रंग हमारी समृद्ध संस्कृति, अटूट शक्ति और दूरदर्शी सपनों की गाथा गाता है।',
+                anthemLabel: 'राष्ट्रीय नमन',
+                anthemQuote: '"विजयी विश्व तिरंगा प्यारा, झंडा ऊंचा रहे हमारा!"',
+                anthemSub: 'एकता और अखंडता की भावना सदैव हमारे पथ को आलोकित करती रहे।',
+                three: 'यह पावन अवसर आपके हृदय को असीम गर्व और देशभक्ति के उमंग से भर दे। आइए, हम सब मिलकर इस स्वतंत्रता का सम्मान करें और एक सशक्त व समृद्ध भारत के निर्माण का संकल्प लें। जय हिंद! भारत माता की जय!',
                 card: 'भारत की धड़कन',
                 cardSub: 'आधुनिक तिरंगा संस्करण',
-                share: 'आपको स्वतंत्रता दिवस की हार्दिक शुभकामनाएं! जय हिन्द 🇮🇳'
-            },
-
-            bn: {
-                title: 'জয় হিন্দ ও আন্তরিক শুভেচ্ছা',
-                subtitle: 'ঐতিহাসিক পার্চমেন্ট সংস্করণ — গর্ব ও ঐতিহ্যের উদযাপন',
-                one: 'আসুন স্বাধীনতা, ঐক্য ও সাহসের সেই চিরন্তন চেতনাকে সম্মান করি, যা আমাদের মহান দেশের পরিচয়। পাহাড়, উপত্যকা, শহর ও গ্রামে তেরঙ্গা আশা ও অটুট সংকল্পের প্রতীক হয়ে উড়ে চলে।',
-                two: 'এই বার্তা আমাদের ন্যায়, স্বাধীনতা, সাম্য ও ভ্রাতৃত্বের প্রতি সম্মিলিত দায়িত্বের কথা মনে করিয়ে দেয়। গেরুয়া, সাদা ও সবুজের প্রতিটি সুতো ত্যাগ ও স্বপ্নের গল্প বলে।',
-                three: 'এই শুভেচ্ছা আপনার হৃদয়ে আনন্দ ও দেশপ্রেম জাগিয়ে তুলুক। ঐক্য ও গর্বের সঙ্গে উজ্জ্বল ভবিষ্যতের দিকে এগিয়ে চলুন।',
-                card: 'ভারতের স্পন্দন',
-                cardSub: 'আধুনিক তেরঙ্গা সংস্করণ',
-                share: 'আপনাকে স্বাধীনতা দিবসের আন্তরিক শুভেচ্ছা! জয় হিন্দ 🇮🇳'
-            },
-
-            ta: {
-                title: 'ஜெய் ஹிந்த் — இனிய வாழ்த்துகள்',
-                subtitle: 'வரலாற்றுச் சுருள் பதிப்பு — பெருமை மற்றும் பாரம்பரியக் கொண்டாட்டம்',
-                one: 'நம் நாட்டின் அடையாளமான சுதந்திரம், ஒற்றுமை மற்றும் துணிச்சலின் அழியாத உணர்வை போற்றுவோம். மலைகள், பள்ளத்தாக்குகள், நகரங்கள் மற்றும் கிராமங்களில் மூவர்ணக் கொடி நம்பிக்கையின் சின்னமாக பறக்கிறது.',
-                two: 'நீதி, சுதந்திரம், சமத்துவம் மற்றும் சகோதரத்துவத்தைக் காக்கும் நமது பொறுப்பை இந்தச் செய்தி நினைவூட்டுகிறது. காவி, வெள்ளை, பச்சை நிறங்களின் ஒவ்வொரு நூலும் தியாகத்தின் கதையைச் சொல்கிறது.',
-                three: 'இந்த வாழ்த்து உங்கள் இதயத்தில் மகிழ்ச்சியையும் தேசப்பற்றையும் மலரச் செய்யட்டும். ஒற்றுமையுடனும் பெருமையுடனும் சிறந்த நாளை நோக்கி முன்னேறுவோம்.',
-                card: 'இந்தியத் துடிப்பு',
-                cardSub: 'நவீன மூவர்ணப் பதிப்பு',
-                share: 'இனிய சுதந்திர தின வாழ்த்துகள்! ஜெய் ஹிந்த் 🇮🇳'
+                wishFromLabel: 'शुभकामना प्रेषक'
             }
         };
 
         let activeLanguage = 'en';
+        let wisherName = '';
 
         function switchLanguage(language) {
             const text = greetings[language] || greetings.en;
@@ -780,6 +1100,10 @@
             document.getElementById('scrollMessage1').textContent = text.one;
             document.getElementById('scrollMessage2').textContent = text.two;
             document.getElementById('scrollMessage3').textContent = text.three;
+            document.getElementById('anthemLabel').textContent = text.anthemLabel;
+            document.getElementById('anthemQuote').textContent = text.anthemQuote;
+            document.getElementById('anthemSub').textContent = text.anthemSub;
+            document.getElementById('wishFromLabel').textContent = text.wishFromLabel;
             document.getElementById('cardTitle').textContent = text.card;
             document.getElementById('cardSubtitle').textContent = text.cardSub;
 
@@ -794,25 +1118,95 @@
             });
         }
 
+        /* =========================================================
+           EDITABLE WISHER NAME — click-to-edit in the letter,
+           kept in sync with the "Personalize this greeting" input
+        ========================================================= */
+        function setWisherName(name) {
+            wisherName = (name || '').trim();
+            const display = wisherName || 'A Proud Indian';
+
+            const letterWisherName = document.getElementById('letterWisherName');
+            if (letterWisherName) {
+                letterWisherName.textContent = display;
+            }
+
+            const wishNameInput = document.getElementById('wishName');
+            if (wishNameInput && wishNameInput.value.trim() !== wisherName) {
+                wishNameInput.value = wisherName;
+            }
+        }
+
+        function focusWishNameInput() {
+            const nameBtn = document.getElementById('letterWisherNameBtn');
+            if (!nameBtn) return;
+
+            const wrapper = nameBtn.parentElement;
+            const currentValue = wisherName;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = 'letterWisherNameInput';
+            input.maxLength = 40;
+            input.value = currentValue;
+            input.placeholder = 'Type your name…';
+            input.className =
+                'text-xl font-rozha text-amber-950 bg-amber-50/70 border-b-2 border-amber-700 outline-none px-1 w-56 max-w-full';
+            input.setAttribute('aria-label', 'Edit your name for this greeting');
+
+            nameBtn.replaceWith(input);
+            input.focus();
+            input.select();
+
+            function commit() {
+                setWisherName(input.value);
+                restoreButton();
+            }
+
+            function restoreButton() {
+                input.replaceWith(nameBtn);
+            }
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commit();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    restoreButton();
+                }
+            });
+
+            input.addEventListener('blur', commit);
+        }
+
         function sharePersonalizedWish() {
-            const name =
-                document.getElementById('wishName').value.trim() ||
-                'A proud Indian';
+            const rawName = document.getElementById('wishName').value.trim();
+            setWisherName(rawName);
+            const name = wisherName || 'A Proud Indian';
 
             const feedback = document.getElementById('shareFeedback');
+            const pageUrl = window.location.href.split('#')[0];
 
-            const text =
-                `${name} ${greetings[activeLanguage].share} ${window.location.href}`;
+            const message =
+                `\uD83E\uDDE1\uD83E\uDD0D\uD83D\uDC9A ${name} wishes you and your family a very HAPPY 79TH INDEPENDENCE DAY! \uD83C\uDDEE\uD83C\uDDF3\n` +
+                `\u2728\uD83C\uDF81 I have sent a special Independence Day greeting card just for you! \uD83D\uDCDC\n` +
+                `Click the link below to open your envelope:\n` +
+                `${pageUrl}`;
 
             feedback.textContent =
                 'Opening WhatsApp with your personalized wish…';
 
             window.open(
-                `https://wa.me/?text=${encodeURIComponent(text)}`,
+                `https://wa.me/?text=${encodeURIComponent(message)}`,
                 '_blank',
                 'noopener,noreferrer'
             );
         }
+
+        document.getElementById('wishName').addEventListener('input', (e) => {
+            setWisherName(e.target.value);
+        });
     </script>
 </body>
 </html>
