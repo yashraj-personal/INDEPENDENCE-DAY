@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tricolor Royal Greeting & Scroll | Made by Yash</title>
+    <title>Tricolor Royal Greeting & Scroll | Made by Yash | v7.0</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -557,7 +557,7 @@
                         </div>
 
                         <div class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-300 text-xs font-mono">
-                            V 2.0 Active
+                            V 7.0 Active
                         </div>
                     </div>
 
@@ -722,6 +722,10 @@
 
                     <span class="text-amber-400 font-bold text-sm font-cinzel">
                         Made by Yash
+                    </span>
+
+                    <span class="text-[10px] text-gray-500 font-mono border-l border-gray-700 pl-2 ml-1">
+                        v7.0
                     </span>
                 </div>
             </div>
@@ -949,96 +953,103 @@
         /* =========================================================
            CURSOR / TOUCH TRICOLOR SPARKLE TRAIL
         ========================================================= */
-        const trailCanvas = document.getElementById('cursorTrailCanvas');
-        const trailCtx = trailCanvas.getContext('2d');
-        let trailW, trailH, trailDPR;
+        (function initCursorTrail() {
+            const canvas = document.getElementById('cursorTrailCanvas');
+            if (!canvas) return;
 
-        function resizeTrailCanvas() {
-            trailDPR = Math.min(window.devicePixelRatio || 1, 2);
-            trailW = window.innerWidth;
-            trailH = window.innerHeight;
-            trailCanvas.width = trailW * trailDPR;
-            trailCanvas.height = trailH * trailDPR;
-            trailCanvas.style.width = trailW + 'px';
-            trailCanvas.style.height = trailH + 'px';
-            trailCtx.setTransform(trailDPR, 0, 0, trailDPR, 0, 0);
-        }
-        window.addEventListener('resize', resizeTrailCanvas);
-        resizeTrailCanvas();
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
 
-        const trailColors = ['#FF9933', '#FFFFFF', '#138808', '#FFD700'];
-        let trailParticles = [];
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-        function spawnTrailParticle(x, y) {
-            trailParticles.push({
-                x,
-                y,
-                size: 2 + Math.random() * 3,
-                life: 1,
-                decay: 0.02 + Math.random() * 0.015,
-                vx: (Math.random() - 0.5) * 0.6,
-                vy: (Math.random() - 0.5) * 0.6 - 0.2,
-                color: trailColors[Math.floor(Math.random() * trailColors.length)]
-            });
-            if (trailParticles.length > 120) {
-                trailParticles.splice(0, trailParticles.length - 120);
+            function resize() {
+                w = window.innerWidth;
+                h = window.innerHeight;
+                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = Math.round(w * dpr);
+                canvas.height = Math.round(h * dpr);
+                canvas.style.width = w + 'px';
+                canvas.style.height = h + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
-        }
+            resize();
+            window.addEventListener('resize', resize);
 
-        function trailTick() {
-            trailCtx.clearRect(0, 0, trailW, trailH);
+            const colors = ['#FF9933', '#FFFFFF', '#138808', '#FFD700'];
+            let particles = [];
 
-            trailParticles = trailParticles.filter((pt) => pt.life > 0);
-            trailParticles.forEach((pt) => {
-                pt.x += pt.vx;
-                pt.y += pt.vy;
-                pt.life -= pt.decay;
+            function spawn(x, y, count) {
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: x,
+                        y: y,
+                        size: 2.5 + Math.random() * 3,
+                        life: 1,
+                        decay: 0.018 + Math.random() * 0.02,
+                        vx: (Math.random() - 0.5) * 0.8,
+                        vy: (Math.random() - 0.5) * 0.8 - 0.3,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+                if (particles.length > 150) {
+                    particles = particles.slice(particles.length - 150);
+                }
+            }
 
-                trailCtx.save();
-                trailCtx.globalAlpha = Math.max(pt.life, 0);
-                trailCtx.beginPath();
-                trailCtx.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI * 2);
-                trailCtx.fillStyle = pt.color;
-                trailCtx.shadowColor = pt.color;
-                trailCtx.shadowBlur = 6;
-                trailCtx.fill();
-                trailCtx.restore();
-            });
+            function tick() {
+                ctx.clearRect(0, 0, w, h);
 
-            requestAnimationFrame(trailTick);
-        }
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const pt = particles[i];
+                    pt.x += pt.vx;
+                    pt.y += pt.vy;
+                    pt.life -= pt.decay;
 
-        if (!prefersReducedMotion) {
-            trailTick();
+                    if (pt.life <= 0) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
 
-            let lastTrailTime = 0;
-            function handlePointerMove(clientX, clientY) {
+                    ctx.beginPath();
+                    ctx.globalAlpha = pt.life;
+                    ctx.fillStyle = pt.color;
+                    ctx.shadowColor = pt.color;
+                    ctx.shadowBlur = 8;
+                    ctx.arc(pt.x, pt.y, Math.max(pt.size * pt.life, 0.4), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+
+            let lastSpawn = 0;
+            function onMove(x, y) {
                 const now = performance.now();
-                if (now - lastTrailTime < 16) return;
-                lastTrailTime = now;
-                spawnTrailParticle(clientX, clientY);
+                if (now - lastSpawn < 20) return;
+                lastSpawn = now;
+                spawn(x, y, 2);
             }
 
             window.addEventListener('mousemove', (e) => {
-                handlePointerMove(e.clientX, e.clientY);
-            }, { passive: true });
+                onMove(e.clientX, e.clientY);
+            });
 
             window.addEventListener('touchmove', (e) => {
                 if (e.touches && e.touches.length > 0) {
-                    const touch = e.touches[0];
-                    handlePointerMove(touch.clientX, touch.clientY);
+                    onMove(e.touches[0].clientX, e.touches[0].clientY);
                 }
             }, { passive: true });
 
             window.addEventListener('touchstart', (e) => {
                 if (e.touches && e.touches.length > 0) {
-                    const touch = e.touches[0];
-                    for (let i = 0; i < 6; i++) {
-                        spawnTrailParticle(touch.clientX, touch.clientY);
-                    }
+                    spawn(e.touches[0].clientX, e.touches[0].clientY, 10);
                 }
             }, { passive: true });
-        }
+        })();
 
         /* =========================================================
            CONFETTI / PARTY POPPERS
@@ -1228,10 +1239,9 @@
             wisherName = (name || '').trim();
             const display = wisherName || 'A Proud Indian';
 
-            const letterWisherName = document.getElementById('letterWisherName');
-            if (letterWisherName) {
-                letterWisherName.textContent = display;
-            }
+            document.querySelectorAll('#letterWisherName, [data-wisher-name-display]').forEach((el) => {
+                el.textContent = display;
+            });
 
             const wishNameInput = document.getElementById('wishName');
             if (wishNameInput && wishNameInput.value.trim() !== wisherName) {
@@ -1243,8 +1253,8 @@
             const nameBtn = document.getElementById('letterWisherNameBtn');
             if (!nameBtn) return;
 
-            const wrapper = nameBtn.parentElement;
             const currentValue = wisherName;
+            let settled = false;
 
             const input = document.createElement('input');
             input.type = 'text';
@@ -1261,12 +1271,21 @@
             input.select();
 
             function commit() {
-                setWisherName(input.value);
-                restoreButton();
+                if (settled) return;
+                settled = true;
+                const newValue = input.value;
+                if (input.isConnected) {
+                    input.replaceWith(nameBtn);
+                }
+                setWisherName(newValue);
             }
 
-            function restoreButton() {
-                input.replaceWith(nameBtn);
+            function cancel() {
+                if (settled) return;
+                settled = true;
+                if (input.isConnected) {
+                    input.replaceWith(nameBtn);
+                }
             }
 
             input.addEventListener('keydown', (e) => {
@@ -1275,7 +1294,7 @@
                     commit();
                 } else if (e.key === 'Escape') {
                     e.preventDefault();
-                    restoreButton();
+                    cancel();
                 }
             });
 
